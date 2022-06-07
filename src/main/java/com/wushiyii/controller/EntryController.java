@@ -11,6 +11,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -32,7 +33,7 @@ public class EntryController {
     //异步http请求发送者
     private final WebClient webClient = WebClient.create();
 
-    @PostMapping("/{module}/{command}")
+    @RequestMapping("/entry/{module}/{command}")
     public Mono<Void> process(@PathVariable("module") String module,
                               @PathVariable("command") String command,
                               DefaultServerWebExchange exchange) {
@@ -45,9 +46,9 @@ public class EntryController {
         MediaType contentType = Objects.nonNull(requestHeaders.getContentType()) ?
                 requestHeaders.getContentType() : MediaType.TEXT_PLAIN;
 
-
-        return webClient.method(HttpMethod.POST)
-                .uri(Dispatcher.fetchUri(request))
+        HttpMethod httpMethod = Objects.nonNull(request.getMethod()) ? request.getMethod() : HttpMethod.POST;
+        return webClient.method(httpMethod)
+                .uri(Dispatcher.fetchUri(module, command, request))
                 .contentType(contentType)
                 .headers(httpHeaders -> {
                     httpHeaders.addAll(requestHeaders);
@@ -57,8 +58,8 @@ public class EntryController {
                 .exchange()
                 .timeout(Duration.ofMillis(10000))
                 .publishOn(Schedulers.fromExecutorService(requestWorkerPool))
-                .onErrorResume(e -> Mono.defer(() -> response.writeWith(Mono.just(response.bufferFactory()
-                                .wrap(ErrorResponse.fail(e).toJSON().getBytes()))))
+                .onErrorResume(e -> Mono
+                        .defer(() -> response.writeWith(Mono.just(response.bufferFactory().wrap(ErrorResponse.fail(e).toJSON().getBytes()))))
                         .then(Mono.empty()))
                 .flatMap(clientResponse -> {
                     response.setStatusCode(clientResponse.statusCode());
