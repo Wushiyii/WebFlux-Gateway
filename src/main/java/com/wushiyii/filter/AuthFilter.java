@@ -1,7 +1,6 @@
 package com.wushiyii.filter;
 
 import com.wushiyii.model.ErrorResponse;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -18,7 +17,6 @@ import java.util.Objects;
 /**
  * 鉴权
  */
-@Order(2)
 @Component
 public class AuthFilter implements WebFilter {
 

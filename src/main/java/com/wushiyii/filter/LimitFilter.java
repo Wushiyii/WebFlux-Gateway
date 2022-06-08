@@ -2,7 +2,6 @@ package com.wushiyii.filter;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.wushiyii.model.ErrorResponse;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -14,11 +13,10 @@ import reactor.core.publisher.Mono;
 /**
  * 限流
  */
-@Order(1)
 @Component
 public class LimitFilter implements WebFilter {
 
-    RateLimiter rateLimiter = RateLimiter.create(500);
+    RateLimiter rateLimiter = RateLimiter.create(1);
 
     @Override
     public Mono<Void> filter(ServerWebExchange serverWebExchange, WebFilterChain webFilterChain) {
