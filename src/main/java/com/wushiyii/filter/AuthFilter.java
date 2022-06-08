@@ -3,6 +3,7 @@ package com.wushiyii.filter;
 import com.wushiyii.model.ErrorResponse;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ public class AuthFilter implements WebFilter {
         MultiValueMap<String, HttpCookie> cookies = request.getCookies();
         HttpCookie cookie = cookies.getFirst(TOKEN);
         if (Objects.isNull(cookie)) {
+            response.setStatusCode(HttpStatus.FORBIDDEN);
             return response.writeWith(Mono.just(response.bufferFactory().wrap(ErrorResponse.fail("无权限访问").toJSON().getBytes())));
         }
         //调用权限系统查询token、获取用户可用权限等
