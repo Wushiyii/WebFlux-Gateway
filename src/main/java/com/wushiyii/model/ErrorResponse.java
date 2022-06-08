@@ -20,6 +20,12 @@ public class ErrorResponse {
     private static final Integer ERROR = -1;
 
 
+    public static ErrorResponse fail(String msg) {
+        return fail(ERROR, msg);
+    }
+    public static ErrorResponse fail(Integer code, String msg) {
+        return new ErrorResponse(code, msg);
+    }
 
     public static ErrorResponse fail(Throwable e) {
 
